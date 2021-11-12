@@ -7,8 +7,8 @@ import cv2
 import threading
 import numpy as np
 import PySimpleGUI as sg
-from datetime import datetime
 import Vision_defs as Vs
+from datetime import datetime
 
 
 def thread_images(path_des_, name_, type_i_, time1_, values_, image_):
