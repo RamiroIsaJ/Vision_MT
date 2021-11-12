@@ -1,7 +1,10 @@
+# Functions and classes for Vision MT program
+
 import cv2
 import serial
 import numpy as np
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 
 class SaveImages:
@@ -11,11 +14,15 @@ class SaveImages:
         self.ini_time = ini_t
         self.time_c = None
 
+    def diff_time(self, t_ini, t_end):
+        t_diff = relativedelta(t_end, t_ini)
+        return t_diff.seconds
+
     def save(self, path, name_i, type_, time_c, values, image):
-        filename = path + name_i + str(self.id_ima) + type_
-        delta_t = datetime.now() - self.ini_time
         self.time_c = time_c
-        time_sleep = delta_t.seconds
+        filename = path + name_i + str(self.id_ima) + type_
+        now_time = datetime.now()
+        time_sleep = self.diff_time(self.ini_time, now_time)
         if values['_TMI_']:
             time_sleep /= 60
         rest_time = np.round(self.time_c - time_sleep, 4)
@@ -39,6 +46,10 @@ class ControlPump:
         self.bauds = bauds
         self.fluid_H, self.fluid_L, self.time_H, self.time_L, self.port = None, None, None, None, None
 
+    def diff_time(self, t_ini, t_end):
+        t_diff = relativedelta(t_end, t_ini)
+        return t_diff.seconds
+
     def active_pump(self, v_fluid):
         self.port = serial.Serial(port=self.port_name,
                                   baudrate=self.bauds,
@@ -59,8 +70,9 @@ class ControlPump:
 
     def control_pump(self, fluid_h_, fluid_l_, time_h_, time_l_):
         self.fluid_H, self.fluid_L, self.time_H, self.time_L = fluid_h_, fluid_l_, time_h_, time_l_
-        delta = datetime.now() - self.ini_time
-        time_sleep = delta.seconds / 60
+        now_time = datetime.now()
+        time_sleep = self.diff_time(self.ini_time, now_time)
+        time_sleep /= 60
 
         if self.control:
             rest_time = np.round(self.time_H - time_sleep, 4)
@@ -122,4 +134,3 @@ def serial_test(port_n, bauds):
         print('------- Port is not available ---------')
         c = 0
     return c
-
