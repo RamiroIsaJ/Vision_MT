@@ -1,10 +1,8 @@
 # Functions and classes for Vision MT program
-
 import cv2
 import serial
 import numpy as np
 from datetime import datetime
-from dateutil.relativedelta import relativedelta
 
 
 class SaveImages:
@@ -15,8 +13,8 @@ class SaveImages:
         self.time_c = None
 
     def diff_time(self, t_ini, t_end):
-        t_diff = relativedelta(t_end, t_ini)
-        return t_diff.seconds
+        t_diff = (t_end - t_ini).total_seconds()
+        return t_diff
 
     def save(self, path, name_i, type_, time_c, values, image):
         self.time_c = time_c
@@ -26,9 +24,10 @@ class SaveImages:
         if values['_TMI_']:
             time_sleep /= 60
         rest_time = np.round(self.time_c - time_sleep, 4)
+        print(rest_time)
         self.window['_RES_'].update(rest_time)
         # -----------------------------------------------------------------
-        if self.time_c == time_sleep or self.id_ima == 1:
+        if rest_time < 0 or self.id_ima == 1:
             print(filename)
             print('SAVE IMAGE SUCCESSFULLY')
             cv2.imwrite(filename, image)
@@ -47,8 +46,8 @@ class ControlPump:
         self.fluid_H, self.fluid_L, self.time_H, self.time_L, self.port = None, None, None, None, None
 
     def diff_time(self, t_ini, t_end):
-        t_diff = relativedelta(t_end, t_ini)
-        return t_diff.seconds
+        t_diff = (t_end - t_ini).total_seconds()
+        return t_diff
 
     def active_pump(self, v_fluid):
         self.port = serial.Serial(port=self.port_name,
